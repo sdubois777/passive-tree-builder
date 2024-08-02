@@ -1,21 +1,30 @@
 import React from 'react';
-import '../styles.css';
 
 interface ProgressBarProps {
   totalPoints: number;
   breakpoints: number[];
+  maxPoints: number;
   onDoubleClick: () => void;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ totalPoints, breakpoints, onDoubleClick }) => {
-  const progressPercentage = (totalPoints / (breakpoints[breakpoints.length - 1] || 1)) * 100;
-
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  totalPoints,
+  breakpoints,
+  maxPoints,
+  onDoubleClick,
+}) => {
+  const percentage = (totalPoints / maxPoints) * 100;
+  
   return (
     <div className="progress-bar-container" onDoubleClick={onDoubleClick}>
-      <div className="progress-bar" style={{ width: `${progressPercentage}%` }} />
-      {breakpoints.map((point, index) => (
-        <div key={index} className="breakpoint" style={{ left: `${(point / (breakpoints[breakpoints.length - 1] || 1)) * 100}%` }}>
-          {point}
+      <div className="progress-bar" style={{ width: `${percentage}%` }} />
+      {breakpoints.map((breakpoint, index) => (
+        <div
+          key={index}
+          className="breakpoint"
+          style={{ left: `${(breakpoint / maxPoints) * 100}%` }}
+        >
+          {breakpoint}
         </div>
       ))}
     </div>

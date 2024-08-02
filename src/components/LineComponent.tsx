@@ -1,14 +1,15 @@
 import React from 'react';
-
+import '../styles.css';
 interface LineComponentProps {
   fromX: number;
   fromY: number;
   toX: number;
   toY: number;
   pointsRequired: number;
+  onClick: () => void;
 }
 
-const LineComponent: React.FC<LineComponentProps> = ({ fromX, fromY, toX, toY, pointsRequired }) => {
+const LineComponent: React.FC<LineComponentProps> = ({ fromX, fromY, toX, toY, pointsRequired, onClick }) => {
   const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
   const angle = Math.atan2(toY - fromY, toX - fromX) * (180 / Math.PI);
 
@@ -24,6 +25,7 @@ const LineComponent: React.FC<LineComponentProps> = ({ fromX, fromY, toX, toY, p
         transformOrigin: '0 0',
         borderBottom: '2px solid black',
       }}
+      onClick={onClick}
     >
       <div
         style={{

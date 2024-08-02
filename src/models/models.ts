@@ -10,6 +10,7 @@ export interface Node {
 }
 
 export interface Dependency {
+  id: string;
   from: string;
   to: string;
   pointsRequired: number;

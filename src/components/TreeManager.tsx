@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppState, TreePage, Node } from '../models/models';
+import { AppState, TreePage, Node, Dependency } from '../models/models';
 import TreePageComponent from './TreePage';
 import NodeEditor from './NodeEditor';
 import NodeDescription from './NodeDescription';
@@ -28,6 +28,7 @@ const TreeManager: React.FC = () => {
   const [cursorPosition, setCursorPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const [breakpoint, setBreakpoint] = useState<number>(5); // Single input for breakpoints
   const [creatingDependency, setCreatingDependency] = useState<{ fromNodeId: string, toNodeId: string | null } | null>(null);
+  const [maxPoints, setMaxPoints] = useState<number>(100);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -217,24 +218,66 @@ const TreeManager: React.FC = () => {
     setBreakpoint(newBreakpoint);
   };
 
-  const handleAddDependency = (fromNodeId: string, toNodeId: string, pointsRequired: number) => {
-    const updatedPages = state.treePages.map((page) => {
-      if (page.id === state.selectedPageId) {
-        const newDependency = {
-          from: fromNodeId,
-          to: toNodeId,
-          pointsRequired
-        };
-        return { ...page, dependencies: [...page.dependencies, newDependency] };
-      }
-      return page;
-    });
-
-    setState((prevState) => ({
-      ...prevState,
-      treePages: updatedPages,
-    }));
+  const handleSaveProgressBarSettings = (newMaxPoints: number, newBreakpoint: number) => {
+    setMaxPoints(newMaxPoints);
+    setBreakpoint(newBreakpoint);
   };
+
+  const handleAddDependency = (fromNodeId: string, toNodeId: string, pointsRequired: number) => {
+  const newDependency: Dependency = {
+    id: `${fromNodeId}-${toNodeId}-${Date.now()}`,
+    from: fromNodeId,
+    to: toNodeId,
+    pointsRequired,
+  };
+
+  const updatedPages = state.treePages.map((page) => {
+    if (page.id === state.selectedPageId) {
+      return { ...page, dependencies: [...page.dependencies, newDependency] };
+    }
+    return page;
+  });
+
+  setState((prevState) => ({
+    ...prevState,
+    treePages: updatedPages,
+  }));
+};
+
+const handleEditDependency = (updatedDependency: Dependency) => {
+  const updatedPages = state.treePages.map((page) => {
+    if (page.id === state.selectedPageId) {
+      const updatedDependencies = page.dependencies.map((dep) =>
+        dep.id === updatedDependency.id ? updatedDependency : dep
+      );
+      return { ...page, dependencies: updatedDependencies };
+    }
+    return page;
+  });
+
+  setState((prevState) => ({
+    ...prevState,
+    treePages: updatedPages,
+  }));
+};
+
+const handleDeleteDependency = (dependencyId: string) => {
+  const updatedPages = state.treePages.map((page) => {
+    if (page.id === state.selectedPageId) {
+      const updatedDependencies = page.dependencies.filter(
+        (dep) => dep.id !== dependencyId
+      );
+      return { ...page, dependencies: updatedDependencies };
+    }
+    return page;
+  });
+
+  setState((prevState) => ({
+    ...prevState,
+    treePages: updatedPages,
+  }));
+};
+
 
   const toggleCreatingDependency = () => {
     setCreatingDependency(creatingDependency ? null : { fromNodeId: '', toNodeId: null });
@@ -269,6 +312,7 @@ const TreeManager: React.FC = () => {
             <TreePageComponent
               page={page}
               breakpoint={breakpoint}
+              maxPoints={maxPoints}
               onNodeClick={setEditingNode}
               onNodeMove={handleNodeMove}
               onNodeHover={setHoveredNode}
@@ -276,7 +320,10 @@ const TreeManager: React.FC = () => {
               onAddPoint={handleAddPoint}
               onRemovePoint={handleRemovePoint}
               onDoubleClickProgressBar={handleDoubleClickProgressBar}
+              onSaveProgressBarSettings={handleSaveProgressBarSettings}
               onAddDependency={handleAddDependency}
+              onEditDependency={handleEditDependency}
+              onDeleteDependency={handleDeleteDependency}
               creatingDependency={creatingDependency}
               setCreatingDependency={setCreatingDependency}
             />
