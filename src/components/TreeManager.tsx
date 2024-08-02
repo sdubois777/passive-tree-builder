@@ -10,9 +10,16 @@ import '../styles.css';
 
 const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/50';
 
+const initializePages = (pages: TreePage[]): TreePage[] => {
+  return pages.map(page => ({
+    ...page,
+    dependencies: page.dependencies || []
+  }));
+};
+
 const TreeManager: React.FC = () => {
   const [state, setState] = useState<AppState>({
-    treePages: loadFromLocalStorage('treePages') || [],
+    treePages: initializePages(loadFromLocalStorage('treePages') || []),
     selectedPageId: '',
   });
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
@@ -20,6 +27,7 @@ const TreeManager: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [cursorPosition, setCursorPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const [breakpoint, setBreakpoint] = useState<number>(5); // Single input for breakpoints
+  const [creatingDependency, setCreatingDependency] = useState<{ fromNodeId: string, toNodeId: string | null } | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -41,6 +49,7 @@ const TreeManager: React.FC = () => {
       id: `page-${Date.now()}`,
       name: 'New Page',
       nodes: [],
+      dependencies: [] // Initialize dependencies here
     };
     setState((prevState) => ({
       ...prevState,
@@ -127,7 +136,17 @@ const TreeManager: React.FC = () => {
       if (page.id === state.selectedPageId) {
         const updatedNodes = page.nodes.map((node) => {
           if (node.id === nodeId && (node.pointsAssigned || 0) > 0) {
-            return { ...node, pointsAssigned: (node.pointsAssigned || 0) - 1 };
+            const canRemove = page.dependencies.every(dep => {
+              if (dep.from === nodeId) {
+                const toNode = page.nodes.find(n => n.id === dep.to);
+                const pointsRequired = dep.pointsRequired || 0;
+                return (toNode?.pointsAssigned || 0) === 0 || (node.pointsAssigned || 0) > pointsRequired;
+              }
+              return true;
+            });
+            if (canRemove) {
+              return { ...node, pointsAssigned: (node.pointsAssigned || 0) - 1 };
+            }
           }
           return node;
         });
@@ -141,6 +160,7 @@ const TreeManager: React.FC = () => {
       treePages: updatedPages,
     }));
   };
+
 
   const deleteNode = (nodeId: string) => {
     const updatedPages = state.treePages.map((page) => {
@@ -170,10 +190,8 @@ const TreeManager: React.FC = () => {
   };
 
   const loadTreePages = () => {
-    const savedPages = loadFromLocalStorage('treePages');
-    if (savedPages) {
-      setState({ ...state, treePages: savedPages });
-    }
+    const savedPages = initializePages(loadFromLocalStorage('treePages') || []);
+    setState({ ...state, treePages: savedPages });
   };
 
   const handleSelect = (index: number) => {
@@ -199,12 +217,36 @@ const TreeManager: React.FC = () => {
     setBreakpoint(newBreakpoint);
   };
 
+  const handleAddDependency = (fromNodeId: string, toNodeId: string, pointsRequired: number) => {
+    const updatedPages = state.treePages.map((page) => {
+      if (page.id === state.selectedPageId) {
+        const newDependency = {
+          from: fromNodeId,
+          to: toNodeId,
+          pointsRequired
+        };
+        return { ...page, dependencies: [...page.dependencies, newDependency] };
+      }
+      return page;
+    });
+
+    setState((prevState) => ({
+      ...prevState,
+      treePages: updatedPages,
+    }));
+  };
+
+  const toggleCreatingDependency = () => {
+    setCreatingDependency(creatingDependency ? null : { fromNodeId: '', toNodeId: null });
+  };
+
   return (
     <div className="tree-manager">
       <div className="button-container">
         <button onClick={addPage}>Add New Page</button>
         <button onClick={addNode}>Add New Node</button>
         <button onClick={loadTreePages}>Load Pages</button>
+        <button onClick={toggleCreatingDependency}>{creatingDependency ? 'Cancel Dependency' : 'Add Dependency'}</button>
       </div>
       <Tabs selectedIndex={tabIndex} onSelect={handleSelect}>
         <TabList>
@@ -234,6 +276,9 @@ const TreeManager: React.FC = () => {
               onAddPoint={handleAddPoint}
               onRemovePoint={handleRemovePoint}
               onDoubleClickProgressBar={handleDoubleClickProgressBar}
+              onAddDependency={handleAddDependency}
+              creatingDependency={creatingDependency}
+              setCreatingDependency={setCreatingDependency}
             />
           </TabPanel>
         ))}

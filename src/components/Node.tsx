@@ -5,12 +5,12 @@ import '../styles.css';
 interface NodeProps {
   node: Node;
   onClick: () => void;
-  onMove: (x: number, y: number) => void;
+  onMove: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
   onHover: () => void;
   onLeave: () => void;
   onAddPoint: () => void;
   onRemovePoint: () => void;
-  isLocked?: boolean;
+  locked: boolean;
 }
 
 const NodeComponent: React.FC<NodeProps> = ({
@@ -21,47 +21,48 @@ const NodeComponent: React.FC<NodeProps> = ({
   onLeave,
   onAddPoint,
   onRemovePoint,
+  locked,
 }) => {
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const nodeRect = e.currentTarget.getBoundingClientRect();
-    const containerRect = e.currentTarget.parentElement?.getBoundingClientRect();
+    onMove(e, node.id);
+  };
 
-    if (containerRect) {
-      const snappedX = e.clientX - containerRect.left - nodeRect.width / 2;
-      const snappedY = e.clientY - containerRect.top - nodeRect.height / 2;
-      onMove(snappedX, snappedY);
+  const handleLeftClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (!locked) {
+      onAddPoint();
+    }
+  };
+
+  const handleRightClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!locked) {
+      onRemovePoint();
     }
   };
 
   return (
     <div
-      className="node"
-      style={{
-        left: node.x,
-        top: node.y,
-      }}
-      onDoubleClick={onClick}
+      className={`node ${locked ? 'locked' : ''}`}
+      style={{ left: node.x, top: node.y }}
       draggable
       onDragEnd={handleDragEnd}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        onRemovePoint();
-      }}
-      onClick={onAddPoint}
+      onClick={onClick}
+      onContextMenu={(e) => e.preventDefault()} // Prevent context menu on right-click
     >
-      {node.image ? (
-        <img src={node.image} alt="Node" />
-      ) : (
-        node.name
+      <img src={node.image} alt={node.name} />
+      {node.maxPoints > 0 && ( // Only show points badge if maxPoints is greater than 0}
+        <div 
+          className="points-badge" 
+          onClick={handleLeftClick} 
+          onContextMenu={handleRightClick} // Separate handlers for left and right clicks
+        >
+          {node.pointsAssigned}/{node.maxPoints}
+        </div>
       )}
-      {node.maxPoints > 0 && (
-        <div className="points-badge">
-        {node.pointsAssigned || 0}/{node.maxPoints || 0}
-      </div>
-      )}      
     </div>
   );
 };

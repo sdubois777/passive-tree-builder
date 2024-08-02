@@ -9,10 +9,17 @@ export interface Node {
   pointsAssigned: number;
 }
 
+export interface Dependency {
+  from: string;
+  to: string;
+  pointsRequired: number;
+}
+
 export interface TreePage {
   id: string;
   name: string;
   nodes: Node[];
+  dependencies: Dependency[];
 }
 
 export interface AppState {
