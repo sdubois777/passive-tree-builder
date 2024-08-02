@@ -10,6 +10,7 @@ interface NodeProps {
   onLeave: () => void;
   onAddPoint: () => void;
   onRemovePoint: () => void;
+  isLocked?: boolean;
 }
 
 const NodeComponent: React.FC<NodeProps> = ({

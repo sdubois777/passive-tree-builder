@@ -8,7 +8,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import '../styles.css';
 
-const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/50'; // Replace with your default image URL
+const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/50';
 
 const TreeManager: React.FC = () => {
   const [state, setState] = useState<AppState>({
@@ -19,12 +19,13 @@ const TreeManager: React.FC = () => {
   const [editingNode, setEditingNode] = useState<Node | null>(null);
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [cursorPosition, setCursorPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: MouseEvent) => {
-    setCursorPosition({ x: e.clientX, y: e.clientY });
-  };
+  const [breakpoint, setBreakpoint] = useState<number>(5); // Single input for breakpoints
 
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
@@ -56,9 +57,9 @@ const TreeManager: React.FC = () => {
       x: 0,
       y: 0,
       description: '',
-      image: DEFAULT_IMAGE_URL, // Assign default image
-      maxPoints: 5, // Default max points
-      pointsAssigned: 0, // Default assigned points
+      image: DEFAULT_IMAGE_URL,
+      maxPoints: 5,
+      pointsAssigned: 0,
     });
   };
 
@@ -193,6 +194,11 @@ const TreeManager: React.FC = () => {
     }));
   };
 
+  const handleDoubleClickProgressBar = () => {
+    const newBreakpoint = parseInt(prompt('Enter breakpoint value', breakpoint.toString()) || breakpoint.toString(), 10);
+    setBreakpoint(newBreakpoint);
+  };
+
   return (
     <div className="tree-manager">
       <div className="button-container">
@@ -201,9 +207,9 @@ const TreeManager: React.FC = () => {
         <button onClick={loadTreePages}>Load Pages</button>
       </div>
       <Tabs selectedIndex={tabIndex} onSelect={handleSelect}>
-        <TabList className="tab-list">
+        <TabList>
           {state.treePages.map((page, index) => (
-            <>
+            <React.Fragment key={page.id}>
               <Tab>
                 <input
                   type="text"
@@ -213,25 +219,35 @@ const TreeManager: React.FC = () => {
                 />
               </Tab>
               <button className="delete-tab-button" onClick={() => deletePage(page.id)}>x</button>
-            </>
+            </React.Fragment>
           ))}
         </TabList>
         {state.treePages.map((page) => (
           <TabPanel key={page.id} className="tab-panel">
             <TreePageComponent
               page={page}
+              breakpoint={breakpoint}
               onNodeClick={setEditingNode}
               onNodeMove={handleNodeMove}
               onNodeHover={setHoveredNode}
               onNodeLeave={() => setHoveredNode(null)}
               onAddPoint={handleAddPoint}
               onRemovePoint={handleRemovePoint}
+              onDoubleClickProgressBar={handleDoubleClickProgressBar}
             />
           </TabPanel>
         ))}
       </Tabs>
-      <NodeEditor node={editingNode} onSave={handleNodeSave} onDelete={deleteNode} />
-      <NodeDescription node={hoveredNode} cursorPosition={cursorPosition} />
+      {editingNode && (
+        <NodeEditor
+          node={editingNode}
+          onSave={handleNodeSave}
+          onDelete={deleteNode}
+        />
+      )}
+      {hoveredNode && (
+        <NodeDescription node={hoveredNode} cursorPosition={cursorPosition} />
+      )}
     </div>
   );
 };
