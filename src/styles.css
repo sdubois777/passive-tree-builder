@@ -1,10 +1,94 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #1e1e1e;
+  color: #c7c7c7;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:active {
+  background-color: #003d80;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
 .tree-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.tabs-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  box-sizing: border-box;
-  height: 100%;
+}
+
+.react-tabs__tab-list {
+  border-bottom: 1px solid #ddd;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.react-tabs__tab {
+  display: inline-block;
+  border: 1px solid transparent;
+  border-bottom: none;
+  bottom: -1px;
+  position: relative;
+  list-style: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.react-tabs__tab--selected {
+  background: #fff;
+  border-color: #ddd;
+  border-radius: 5px 5px 0 0;
+}
+
+.react-tabs__tab:focus {
+  box-shadow: 0 0 5px hsl(208, 99%, 50%);
+  border-color: hsl(208, 99%, 50%);
+  outline: none;
+}
+
+.react-tabs__tab-panel {
+  display: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure it fills the available space */
+}
+
+.react-tabs__tab-panel--selected {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%; /* Ensure it fills the available space */
 }
 
 .tree-page {
@@ -12,12 +96,19 @@
   flex: 1;
   border: 1px solid gray;
   margin: 20px 0;
-  height: calc(100% - 50px);
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+}
+
+.tree-page-content {
+  flex: 1;
+  position: relative;
 }
 
 .node {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border: 1px solid black;
   text-align: center;
   background-color: lightgray;
@@ -37,18 +128,24 @@
 
 .points-badge {
   position: absolute;
-  bottom: -10px; /* Adjust to position it below the node */
-  right: -10px; /* Adjust to position it to the right of the node */
-  background-color: #007bff;
+  bottom: -10px;
+  right: -10px;
+  background-color: #007bffab;
   color: white;
-  padding: 2px 6px;
-  border-radius: 5px;
-  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 8px;
+  font-size: 9px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid white;
+}
+
+.node.locked {
+  background-color: #333; /* Darker color for locked nodes */
+  cursor: not-allowed; /* Change cursor to indicate locked state */
+  opacity: 0.5; /* Reduce opacity for visual indication */
 }
 
 .node-editor {
@@ -109,8 +206,51 @@
 .node-description {
   position: absolute;
   background-color: white;
-  cursor: pointer;
   border: 1px solid gray;
   padding: 5px;
   z-index: 1000;
+}
+
+/* Progress bar styles */
+.progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  width: 95%;
+  height: 20px;
+  background-color: #ddd;
+  align-self: center;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #007bff;
+  transition: width 0.3s;
+  position: absolute;
+  bottom: 0;
+}
+
+.breakpoint {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: red;
+  text-align: center;
+  font-size: 12px;
+  line-height: 20px;
+  color: black;
+}
+
+/* Delete tab button */
+.delete-tab-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.delete-tab-button:hover {
+  background-color: #c82333;
 }
