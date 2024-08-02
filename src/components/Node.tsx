@@ -57,9 +57,11 @@ const NodeComponent: React.FC<NodeProps> = ({
       ) : (
         node.name
       )}
-      <div className="points-badge">
+      {node.maxPoints > 0 && (
+        <div className="points-badge">
         {node.pointsAssigned || 0}/{node.maxPoints || 0}
       </div>
+      )}      
     </div>
   );
 };

@@ -34,7 +34,7 @@ const TreePageComponent: React.FC<TreePageComponentProps> = ({
   };
 
   const totalPoints = page.nodes.reduce((acc, node) => acc + (node.pointsAssigned || 0), 0);
-  const breakpoints = Array.from({ length: Math.ceil(200 / breakpoint + 1) }, (_, i) => i * breakpoint);
+  const breakpoints = Array.from({ length: Math.ceil(300 / breakpoint + 1) }, (_, i) => i * breakpoint);
 
   return (
     <div className="tree-page" ref={treePageRef}>

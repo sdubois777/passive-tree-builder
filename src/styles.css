@@ -218,7 +218,8 @@ button:active {
   width: 95%;
   height: 20px;
   background-color: #ddd;
-  align-self: center;
+  margin-left: 10px;
+  align-self: flex-start;
 }
 
 .progress-bar {
