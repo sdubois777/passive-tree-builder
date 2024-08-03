@@ -160,10 +160,10 @@ const TreePageComponent: React.FC<TreePageComponentProps> = ({
           return (
             <LineComponent
               key={dep.id}
-              fromX={fromNode.x + 15}
-              fromY={fromNode.y + 15}
-              toX={toNode.x + 15}
-              toY={toNode.y + 15}
+              fromX={fromNode.x + 25}
+              fromY={fromNode.y + 25}
+              toX={toNode.x + 25}
+              toY={toNode.y + 25}
               pointsRequired={dep.pointsRequired}
               onClick={() => handleLineClick(dep)} // Handle line click
             />
