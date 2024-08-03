@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { AppState, TreePage, Node, Dependency } from '../models/models';
 import TreePageComponent from './TreePage';
-import NodeEditor from './NodeEditor';
-import NodeDescription from './NodeDescription';
+import NodeEditor from '../components/Node/NodeEditor';
+import NodeDescription from '../components/Node/NodeDescription';
 import { saveToLocalStorage, loadFromLocalStorage } from '../utils/storage';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import '../styles.css';
+import '../styles/styles.css';
 
 const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/50';
 
@@ -286,16 +286,16 @@ const handleDeleteDependency = (dependencyId: string) => {
   return (
     <div className="tree-manager">
       <div className="button-container">
-        <button onClick={addPage}>Add New Page</button>
+        <button className="button" onClick={addPage}>Add New Page</button>
         <button onClick={addNode}>Add New Node</button>
         <button onClick={loadTreePages}>Load Pages</button>
         <button onClick={toggleCreatingDependency}>{creatingDependency ? 'Cancel Dependency' : 'Add Dependency'}</button>
       </div>
       <Tabs selectedIndex={tabIndex} onSelect={handleSelect}>
-        <TabList>
+        <TabList className="react-tabs__tab-list">
           {state.treePages.map((page, index) => (
             <React.Fragment key={page.id}>
-              <Tab>
+              <Tab className="react-tabs__tab">
                 <input
                   type="text"
                   value={page.name}
@@ -308,7 +308,7 @@ const handleDeleteDependency = (dependencyId: string) => {
           ))}
         </TabList>
         {state.treePages.map((page) => (
-          <TabPanel key={page.id} className="tab-panel">
+          <TabPanel key={page.id} className="react-tabs__tab-panel">
             <TreePageComponent
               page={page}
               breakpoint={breakpoint}

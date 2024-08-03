@@ -1,16 +1,17 @@
 {
   "name": "passive-tree-builder",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.0.1",
+  "description": "A passive tree builder application using Electron and React",
+  "main": "main.mjs",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"wait-on http://localhost:3000 && electron .\"",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "electron-dev": "concurrently \"vite\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-pack": "electron-builder"
   },
   "dependencies": {
-    "@types/react-router-dom": "^5.3.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
@@ -22,10 +23,29 @@
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "^5.2.2",
-    "vite": "^5.3.4"
+    "vite": "^5.3.4",
+    "concurrently": "^7.3.0",
+    "wait-on": "^6.0.1"
+  },
+  "build": {
+    "appId": "com.example.passivetreebuilder",
+    "files": [
+      "dist/**/*",
+      "main.mjs",
+      "public/preload.js"
+    ],
+    "extraResources": {
+      "from": "public/",
+      "to": "."
+    },
+    "directories": {
+      "buildResources": "assets"
+    }
   }
 }

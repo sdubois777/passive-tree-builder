@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Node } from '../models/models';
-import '../styles.css';
+import { Node } from '../../models/models';
+import '../../styles/styles.css';
 
 interface NodeEditorProps {
   node: Node | null;

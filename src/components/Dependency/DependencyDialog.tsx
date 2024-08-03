@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles.css';
+import '../../styles/styles.css';
 interface DependencyDialogProps {
   fromNodeId: string;
   toNodeId: string;
@@ -30,14 +30,18 @@ const DependencyDialog: React.FC<DependencyDialogProps> = ({
   return (
     <div className="dependency-dialog">
       <h3>Edit Dependency</h3>
-      <label>
-        Points Required:
+      <div style={{display: 'inline-flex'}}>
+        <label>
+          Points Required:
+        </label>
         <input
-          type="number"
-          value={pointsRequired}
-          onChange={(e) => setPointsRequired(parseInt(e.target.value, 10))}
-        />
-      </label>
+            className="dependency-dialog-input"
+            type="number"
+            value={pointsRequired}
+            onChange={(e) => setPointsRequired(parseInt(e.target.value, 10))}
+          />
+      </div>
+      
       <div>
         <button onClick={handleSave}>Save</button>
         <button onClick={handleDelete}>Delete</button>

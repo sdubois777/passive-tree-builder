@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { TreePage, Node, Dependency } from '../models/models';
-import NodeComponent from './Node';
-import LineComponent from './LineComponent';
-import ProgressBar from './ProgressBar';
-import ProgressBarDialog from './ProgressBarDialog';
-import DependencyDialog from './DependencyDialog';
-import '../styles.css';
+import NodeComponent from '../components/Node/Node';
+import LineComponent from '../components/Dependency/LineComponent';
+import ProgressBar from '../components/ProgressBar/ProgressBar';
+import ProgressBarDialog from '../components/ProgressBar/ProgressBarDialog';
+import DependencyDialog from '../components/Dependency/DependencyDialog';
+import '../styles/styles.css';
+import 'react-tabs/style/react-tabs.css';
 
 interface TreePageComponentProps {
   page: TreePage;
@@ -134,7 +135,7 @@ const TreePageComponent: React.FC<TreePageComponentProps> = ({
   };
 
   const totalPoints = page.nodes.reduce((acc, node) => acc + (node.pointsAssigned || 0), 0);
-  const breakpoints = Array.from({ length: Math.ceil(maxPoints / breakpoint) }, (_, i) => i * breakpoint);
+  const breakpoints = Array.from({ length: Math.ceil(maxPoints / breakpoint + 1) }, (_, i) => i * breakpoint);
 
   return (
     <div className="tree-page" ref={treePageRef}>

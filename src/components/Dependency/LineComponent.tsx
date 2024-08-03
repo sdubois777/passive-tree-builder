@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles.css';
+import '../../styles/styles.css';
 interface LineComponentProps {
   fromX: number;
   fromY: number;
@@ -21,9 +21,10 @@ const LineComponent: React.FC<LineComponentProps> = ({ fromX, fromY, toX, toY, p
         left: `${fromX}px`,
         top: `${fromY}px`,
         width: `${length}px`,
+        backgroundColor: 'gold',
         transform: `rotate(${angle}deg)`,
         transformOrigin: '0 0',
-        borderBottom: '2px solid black',
+        borderBottom: '2px solid gold',
       }}
       onClick={onClick}
     >
@@ -32,8 +33,9 @@ const LineComponent: React.FC<LineComponentProps> = ({ fromX, fromY, toX, toY, p
           position: 'absolute',
           left: `${length / 2}px`,
           top: '-10px',
-          backgroundColor: 'white',
-          padding: '2px 5px',
+          backgroundColor: 'silver',
+          color: 'black',
+          padding: '1px 3px',
           borderRadius: '3px',
           fontSize: '12px',
           zIndex: 1,

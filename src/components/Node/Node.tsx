@@ -1,6 +1,6 @@
 import React from 'react';
-import { Node } from '../models/models';
-import '../styles.css';
+import { Node } from '../../models/models';
+import '../../styles/styles.css';
 
 interface NodeProps {
   node: Node;
