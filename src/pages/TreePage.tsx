@@ -67,11 +67,12 @@ const TreePageComponent: React.FC<TreePageComponentProps> = ({
     setLockedNodes(newLockedNodes);
   }, [page.nodes, page.dependencies]);
 
+
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>, id: string) => {
     const rect = treePageRef.current?.getBoundingClientRect();
     if (rect) {
-      const x = e.clientX - rect.left - 15;
-      const y = e.clientY - rect.top - 15;
+      const x = e.clientX - rect.left - 25;
+      const y = e.clientY - rect.top - 25;
       onNodeMove(id, x, y);
     }
   };

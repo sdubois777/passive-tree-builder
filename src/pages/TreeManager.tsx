@@ -5,6 +5,7 @@ import NodeEditor from '../components/Node/NodeEditor';
 import NodeDescription from '../components/Node/NodeDescription';
 import { saveToLocalStorage, loadFromLocalStorage } from '../utils/storage';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import ContextMenu, { useMyContextMenu } from './ContextMenu';
 import 'react-tabs/style/react-tabs.css';
 import '../styles/styles.css';
 
@@ -28,6 +29,16 @@ const TreeManager: React.FC = () => {
   const [cursorPosition, setCursorPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const [breakpoint, setBreakpoint] = useState<number>(5); // Single input for breakpoints
   const [creatingDependency, setCreatingDependency] = useState<{ fromNodeId: string, toNodeId: string | null } | null>(null);
+  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const { show } = useMyContextMenu();
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+    show({ event });
+  };
+
   const [maxPoints, setMaxPoints] = useState<number>(100);
 
   useEffect(() => {
@@ -60,12 +71,13 @@ const TreeManager: React.FC = () => {
     setTabIndex(state.treePages.length); // Set focus to the new tab
   };
 
-  const addNode = () => {
+  const addNode = () => {   
     setEditingNode({
       id: `node-${Date.now()}`,
       name: '',
-      x: 0,
-      y: 0,
+      //Need to figure out how to not have manually set pixels
+      x: contextMenuPosition.x - 25,
+      y: contextMenuPosition.y - 149,
       description: '',
       image: DEFAULT_IMAGE_URL,
       maxPoints: 5,
@@ -190,11 +202,6 @@ const TreeManager: React.FC = () => {
     setTabIndex(0);
   };
 
-  const loadTreePages = () => {
-    const savedPages = initializePages(loadFromLocalStorage('treePages') || []);
-    setState({ ...state, treePages: savedPages });
-  };
-
   const handleSelect = (index: number) => {
     setTabIndex(index);
     setState((prevState) => ({
@@ -286,10 +293,7 @@ const handleDeleteDependency = (dependencyId: string) => {
   return (
     <div className="tree-manager">
       <div className="button-container">
-        <button className="button" onClick={addPage}>Add New Page</button>
-        <button onClick={addNode}>Add New Node</button>
-        <button onClick={loadTreePages}>Load Pages</button>
-        <button onClick={toggleCreatingDependency}>{creatingDependency ? 'Cancel Dependency' : 'Add Dependency'}</button>
+        <button className="button" onClick={addPage}>Add New Page</button>   
       </div>
       <Tabs selectedIndex={tabIndex} onSelect={handleSelect}>
         <TabList className="react-tabs__tab-list">
@@ -308,7 +312,7 @@ const handleDeleteDependency = (dependencyId: string) => {
           ))}
         </TabList>
         {state.treePages.map((page) => (
-          <TabPanel key={page.id} className="react-tabs__tab-panel">
+          <TabPanel key={page.id} className="react-tabs__tab-panel" onContextMenu={handleContextMenu}>
             <TreePageComponent
               page={page}
               breakpoint={breakpoint}
@@ -327,6 +331,7 @@ const handleDeleteDependency = (dependencyId: string) => {
               creatingDependency={creatingDependency}
               setCreatingDependency={setCreatingDependency}
             />
+            <ContextMenu onAddNode={addNode} onAddDependency={toggleCreatingDependency} position={contextMenuPosition}/>
           </TabPanel>
         ))}
       </Tabs>
