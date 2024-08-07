@@ -1,35 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { AppState, TreePage, Node, Dependency } from '../models/models';
-import TreePageComponent from './TreePage';
-import NodeEditor from '../components/Node/NodeEditor';
-import NodeDescription from '../components/Node/NodeDescription';
-import { saveToLocalStorage, loadFromLocalStorage } from '../utils/storage';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import ContextMenu, { useMyContextMenu } from './ContextMenu';
-import 'react-tabs/style/react-tabs.css';
-import '../styles/styles.css';
+import React, { useState, useEffect } from "react";
+import { AppState, TreePage, Node, Dependency } from "../models/models";
+import TreePageComponent from "./TreePage";
+import NodeEditor from "../components/Node/NodeEditor";
+import NodeDescription from "../components/Node/NodeDescription";
+import { saveToLocalStorage, loadFromLocalStorage } from "../utils/storage";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import ContextMenu, { useMyContextMenu } from "./ContextMenu";
+import "react-tabs/style/react-tabs.css";
+import "../styles/styles.css";
 
-const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/50';
+const DEFAULT_IMAGE_URL = "https://via.placeholder.com/50";
 
 const initializePages = (pages: TreePage[]): TreePage[] => {
-  return pages.map(page => ({
+  return pages.map((page) => ({
     ...page,
-    dependencies: page.dependencies || []
+    dependencies: page.dependencies || [],
   }));
 };
 
 const TreeManager: React.FC = () => {
   const [state, setState] = useState<AppState>({
-    treePages: initializePages(loadFromLocalStorage('treePages') || []),
-    selectedPageId: '',
+    treePages: initializePages(loadFromLocalStorage("treePages") || []),
+    selectedPageId: "",
   });
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   const [editingNode, setEditingNode] = useState<Node | null>(null);
   const [tabIndex, setTabIndex] = useState<number>(0);
-  const [cursorPosition, setCursorPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-  const [breakpoint, setBreakpoint] = useState<number>(5); // Single input for breakpoints
-  const [creatingDependency, setCreatingDependency] = useState<{ fromNodeId: string, toNodeId: string | null } | null>(null);
-  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const [cursorPosition, setCursorPosition] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+  const [breakpoint, setBreakpoint] = useState<number>(10); // Single input for breakpoints
+  const [maxPoints, setMaxPoints] = useState<number>(200); // Single input for maxPoints
+  const [creatingDependency, setCreatingDependency] = useState<{
+    fromNodeId: string;
+    toNodeId: string | null;
+  } | null>(null);
+  const [contextMenuPosition, setContextMenuPosition] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
   const { show } = useMyContextMenu();
 
   const handleContextMenu = (event: React.MouseEvent) => {
@@ -39,29 +49,27 @@ const TreeManager: React.FC = () => {
     show({ event });
   };
 
-  const [maxPoints, setMaxPoints] = useState<number>(100);
-
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setCursorPosition({ x: e.clientX, y: e.clientY });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
 
   useEffect(() => {
-    saveToLocalStorage('treePages', state.treePages);
+    saveToLocalStorage("treePages", state.treePages);
   }, [state.treePages]);
 
   const addPage = () => {
     const newPage: TreePage = {
       id: `page-${Date.now()}`,
-      name: 'New Page',
+      name: "New Page",
       nodes: [],
-      dependencies: [] // Initialize dependencies here
+      dependencies: [], // Initialize dependencies here
     };
     setState((prevState) => ({
       ...prevState,
@@ -71,14 +79,14 @@ const TreeManager: React.FC = () => {
     setTabIndex(state.treePages.length); // Set focus to the new tab
   };
 
-  const addNode = () => {   
+  const addNode = () => {
     setEditingNode({
       id: `node-${Date.now()}`,
-      name: '',
+      name: "",
       //Need to figure out how to not have manually set pixels
       x: contextMenuPosition.x - 25,
       y: contextMenuPosition.y - 149,
-      description: '',
+      description: "",
       image: DEFAULT_IMAGE_URL,
       maxPoints: 5,
       pointsAssigned: 0,
@@ -128,7 +136,10 @@ const TreeManager: React.FC = () => {
     const updatedPages = state.treePages.map((page) => {
       if (page.id === state.selectedPageId) {
         const updatedNodes = page.nodes.map((node) => {
-          if (node.id === nodeId && (node.pointsAssigned || 0) < (node.maxPoints || 0)) {
+          if (
+            node.id === nodeId &&
+            (node.pointsAssigned || 0) < (node.maxPoints || 0)
+          ) {
             return { ...node, pointsAssigned: (node.pointsAssigned || 0) + 1 };
           }
           return node;
@@ -149,16 +160,22 @@ const TreeManager: React.FC = () => {
       if (page.id === state.selectedPageId) {
         const updatedNodes = page.nodes.map((node) => {
           if (node.id === nodeId && (node.pointsAssigned || 0) > 0) {
-            const canRemove = page.dependencies.every(dep => {
+            const canRemove = page.dependencies.every((dep) => {
               if (dep.from === nodeId) {
-                const toNode = page.nodes.find(n => n.id === dep.to);
+                const toNode = page.nodes.find((n) => n.id === dep.to);
                 const pointsRequired = dep.pointsRequired || 0;
-                return (toNode?.pointsAssigned || 0) === 0 || (node.pointsAssigned || 0) > pointsRequired;
+                return (
+                  (toNode?.pointsAssigned || 0) === 0 ||
+                  (node.pointsAssigned || 0) > pointsRequired
+                );
               }
               return true;
             });
             if (canRemove) {
-              return { ...node, pointsAssigned: (node.pointsAssigned || 0) - 1 };
+              return {
+                ...node,
+                pointsAssigned: (node.pointsAssigned || 0) - 1,
+              };
             }
           }
           return node;
@@ -173,7 +190,6 @@ const TreeManager: React.FC = () => {
       treePages: updatedPages,
     }));
   };
-
 
   const deleteNode = (nodeId: string) => {
     const updatedPages = state.treePages.map((page) => {
@@ -197,7 +213,7 @@ const TreeManager: React.FC = () => {
     setState((prevState) => ({
       ...prevState,
       treePages: updatedPages,
-      selectedPageId: updatedPages.length > 0 ? updatedPages[0].id : '',
+      selectedPageId: updatedPages.length > 0 ? updatedPages[0].id : "",
     }));
     setTabIndex(0);
   };
@@ -211,9 +227,9 @@ const TreeManager: React.FC = () => {
   };
 
   const handleRenameTab = (index: number, newName: string) => {
-    const updatedPages = state.treePages.map((page, i) => (
+    const updatedPages = state.treePages.map((page, i) =>
       i === index ? { ...page, name: newName } : page
-    ));
+    );
     setState((prevState) => ({
       ...prevState,
       treePages: updatedPages,
@@ -221,79 +237,93 @@ const TreeManager: React.FC = () => {
   };
 
   const handleDoubleClickProgressBar = () => {
-    const newBreakpoint = parseInt(prompt('Enter breakpoint value', breakpoint.toString()) || breakpoint.toString(), 10);
+    const newBreakpoint = parseInt(
+      prompt("Enter breakpoint value", breakpoint.toString()) ||
+        breakpoint.toString(),
+      10
+    );
     setBreakpoint(newBreakpoint);
   };
 
-  const handleSaveProgressBarSettings = (newMaxPoints: number, newBreakpoint: number) => {
+  const handleSaveProgressBarSettings = (
+    newMaxPoints: number,
+    newBreakpoint: number
+  ) => {
     setMaxPoints(newMaxPoints);
     setBreakpoint(newBreakpoint);
   };
 
-  const handleAddDependency = (fromNodeId: string, toNodeId: string, pointsRequired: number) => {
-  const newDependency: Dependency = {
-    id: `${fromNodeId}-${toNodeId}-${Date.now()}`,
-    from: fromNodeId,
-    to: toNodeId,
-    pointsRequired,
+  const handleAddDependency = (
+    fromNodeId: string,
+    toNodeId: string,
+    pointsRequired: number
+  ) => {
+    const newDependency: Dependency = {
+      id: `${fromNodeId}-${toNodeId}-${Date.now()}`,
+      from: fromNodeId,
+      to: toNodeId,
+      pointsRequired,
+    };
+
+    const updatedPages = state.treePages.map((page) => {
+      if (page.id === state.selectedPageId) {
+        return { ...page, dependencies: [...page.dependencies, newDependency] };
+      }
+      return page;
+    });
+
+    setState((prevState) => ({
+      ...prevState,
+      treePages: updatedPages,
+    }));
   };
 
-  const updatedPages = state.treePages.map((page) => {
-    if (page.id === state.selectedPageId) {
-      return { ...page, dependencies: [...page.dependencies, newDependency] };
-    }
-    return page;
-  });
+  const handleEditDependency = (updatedDependency: Dependency) => {
+    const updatedPages = state.treePages.map((page) => {
+      if (page.id === state.selectedPageId) {
+        const updatedDependencies = page.dependencies.map((dep) =>
+          dep.id === updatedDependency.id ? updatedDependency : dep
+        );
+        return { ...page, dependencies: updatedDependencies };
+      }
+      return page;
+    });
 
-  setState((prevState) => ({
-    ...prevState,
-    treePages: updatedPages,
-  }));
-};
+    setState((prevState) => ({
+      ...prevState,
+      treePages: updatedPages,
+    }));
+  };
 
-const handleEditDependency = (updatedDependency: Dependency) => {
-  const updatedPages = state.treePages.map((page) => {
-    if (page.id === state.selectedPageId) {
-      const updatedDependencies = page.dependencies.map((dep) =>
-        dep.id === updatedDependency.id ? updatedDependency : dep
-      );
-      return { ...page, dependencies: updatedDependencies };
-    }
-    return page;
-  });
+  const handleDeleteDependency = (dependencyId: string) => {
+    const updatedPages = state.treePages.map((page) => {
+      if (page.id === state.selectedPageId) {
+        const updatedDependencies = page.dependencies.filter(
+          (dep) => dep.id !== dependencyId
+        );
+        return { ...page, dependencies: updatedDependencies };
+      }
+      return page;
+    });
 
-  setState((prevState) => ({
-    ...prevState,
-    treePages: updatedPages,
-  }));
-};
-
-const handleDeleteDependency = (dependencyId: string) => {
-  const updatedPages = state.treePages.map((page) => {
-    if (page.id === state.selectedPageId) {
-      const updatedDependencies = page.dependencies.filter(
-        (dep) => dep.id !== dependencyId
-      );
-      return { ...page, dependencies: updatedDependencies };
-    }
-    return page;
-  });
-
-  setState((prevState) => ({
-    ...prevState,
-    treePages: updatedPages,
-  }));
-};
-
+    setState((prevState) => ({
+      ...prevState,
+      treePages: updatedPages,
+    }));
+  };
 
   const toggleCreatingDependency = () => {
-    setCreatingDependency(creatingDependency ? null : { fromNodeId: '', toNodeId: null });
+    setCreatingDependency(
+      creatingDependency ? null : { fromNodeId: "", toNodeId: null }
+    );
   };
 
   return (
     <div className="tree-manager">
       <div className="button-container">
-        <button className="button" onClick={addPage}>Add New Page</button>   
+        <button className="button" onClick={addPage}>
+          Add New Page
+        </button>
       </div>
       <Tabs selectedIndex={tabIndex} onSelect={handleSelect}>
         <TabList className="react-tabs__tab-list">
@@ -304,15 +334,28 @@ const handleDeleteDependency = (dependencyId: string) => {
                   type="text"
                   value={page.name}
                   onChange={(e) => handleRenameTab(index, e.target.value)}
-                  style={{ border: 'none', background: 'transparent', color: 'inherit' }}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    color: "inherit",
+                  }}
                 />
               </Tab>
-              <button className="delete-tab-button" onClick={() => deletePage(page.id)}>x</button>
+              <button
+                className="delete-tab-button"
+                onClick={() => deletePage(page.id)}
+              >
+                x
+              </button>
             </React.Fragment>
           ))}
         </TabList>
         {state.treePages.map((page) => (
-          <TabPanel key={page.id} className="react-tabs__tab-panel" onContextMenu={handleContextMenu}>
+          <TabPanel
+            key={page.id}
+            className="react-tabs__tab-panel"
+            onContextMenu={handleContextMenu}
+          >
             <TreePageComponent
               page={page}
               breakpoint={breakpoint}
@@ -331,7 +374,11 @@ const handleDeleteDependency = (dependencyId: string) => {
               creatingDependency={creatingDependency}
               setCreatingDependency={setCreatingDependency}
             />
-            <ContextMenu onAddNode={addNode} onAddDependency={toggleCreatingDependency} position={contextMenuPosition}/>
+            <ContextMenu
+              onAddNode={addNode}
+              onAddDependency={toggleCreatingDependency}
+              position={contextMenuPosition}
+            />
           </TabPanel>
         ))}
       </Tabs>
